@@ -72,11 +72,11 @@ error_reporting(E_ALL);
 						   legend.legend_id, 
 						   legend.legend_name, 
 						   legend.legend_desc');
-
 		$this->db->from('fwc_cra cra');
 		$this->db->join('cra_proccesing_step step', 'FIND_IN_SET(step.p_step_id, cra.cra_proccessing_id) > 0');
 		$this->db->join('cra_legend legend', 'FIND_IN_SET(legend.legend_id, cra.cra_legend_id) > 0');
 		$this->db->distinct();
+		$this->db->order_by('cra.cra_proccessing_id');
 		$query = $this->db->get();
 		return $query->result();
 
@@ -85,6 +85,14 @@ error_reporting(E_ALL);
 	{
 		$this->db->select('
 					   cr.table_id,
+					   crs.rev_sign,
+					   crs.rev_name,
+					   crs.rev_position,
+					   crs.rev_date,
+					   crs.appr_sign,
+					   crs.appr_name,
+					   crs.appr_position,
+					   crs.appr_date,
 					   cr.date_recorded, 
                        cps.processing_step, 
                        cr.cra_prvntv_ctrl_record, 
@@ -95,6 +103,7 @@ error_reporting(E_ALL);
                        cl.legend_name, 
                        cl.legend_desc');
 		$this->db->from('cra_record cr');
+		$this->db->join('cra_reviewer_sign crs', 'FIND_IN_SET(crs.table_id, cr.table_id) > 0');
 		$this->db->join('cra_proccesing_step cps', 'FIND_IN_SET(cps.p_step_id, cr.id_report) > 0');
 		$this->db->join('cra_legend cl', 'FIND_IN_SET(cl.legend_id, cr.cra_legend_id) > 0');
 		$this->db->where('cr.table_id', $record_id);
@@ -190,7 +199,7 @@ error_reporting(E_ALL);
 			$this->db->delete($table_name); 
 		}
 
-	function insert_cra_record($records)
+	function insert_cra_record($records,$reviewer)
 	{
 		$table_id = 1;
 		$this->db->select('table_id');
@@ -214,9 +223,15 @@ error_reporting(E_ALL);
 				'cra_food_safety_hazard_record' => $records['cra_food_safety_hazard_record'][$index],
 				'cra_is_applied_record' => $records['cra_is_applied_record'][$index]
 			);
-			$this->db->insert('cra_record', $insertedRecord);
+			$cra_records_succ = $this->db->insert('cra_record', $insertedRecord);
 		}
-		return "success";
+
+		$success = $this->insert_batch($reviewer, 'cra_reviewer_sign');
+		if($success) {
+			$this->db->update('fwc_cra', array('cra_prvntv_ctrl' => NULL, 'cra_is_applied' => NULL));
+		}
+
+		
 	}
 
 	public function fwc_cra_add_child($id, $justify, $record)

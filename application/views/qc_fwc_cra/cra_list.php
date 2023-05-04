@@ -5,6 +5,41 @@
 <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/style.css">
 <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/sumoselect.min.css">
 <style>
+    .signature-container {
+        text-align: center;
+        font-family: Arial, sans-serif;
+        font-size: 16px;
+        flex-basis: 50%;
+        /* Set the width of each signature container to 50% */
+    }
+
+    .signature-container hr {
+        border: none;
+        border-top: 1px solid #000;
+        width:300px;
+
+    }
+
+    .signature-container .name {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .signature-container .position {
+        margin-bottom: 5px;
+    }
+
+    .signature-container .date {
+        margin-top: 5px;
+    }
+
+    /* Flexbox styles */
+    .signature-container-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
     .custom-radio {
         position: relative;
         display: inline-block;

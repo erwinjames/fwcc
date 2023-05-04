@@ -130,7 +130,6 @@
             </center>
         </div>
         <div>
-            <h4>Clothing Risk Analysis</h4>
         </div>
         <button class="btn" type="button" data-toggle="modal" data-target="#form"><i class="fa fa-plus" aria-hidden="true"></i></button>
         <form method="POST" enctype="multipart/form-data">
@@ -251,7 +250,7 @@
                             <textarea type="text" class="form-control" required name="p_steps" placeholder="Steps here.."></textarea>
                             <br>
                             <?php
-                        $query = $this->db->query('SELECT * FROM cra_legend LIMIT 1');
+                        $query = $this->db->query('SELECT * FROM cra_legend ORDER BY RAND() LIMIT 1');
                         $rows = $query->result();
                     ?>
                     <?php if (count($rows) > 0) { ?>

@@ -21,6 +21,7 @@ class Forms extends CI_Controller
     // {
     //     $this->load->view('qc_fwc/');
     // }
+
     public function cra_legend_show()
     {
         $image = base_url('assets/images/logo.png');
@@ -30,6 +31,11 @@ class Forms extends CI_Controller
 
         <table class="table" style="width: 100%;font-size: 12px;">
            <center> <img src="' . $image . '" alt="fwc" width="10%"> </center>
+           <br>
+           <h5>Hazard Analysis</h5>
+           <p style="font-size:12px">Hazard identification (column 2) considers known or reasonably
+            foreseeable hazards (i.e., potential hazards) present in the food because 
+           the hazard occurs naturally; the hazard may be unintentionally introduced.</p>
         ';
         foreach ($data as $row) {
             $output .= '
@@ -44,6 +50,249 @@ class Forms extends CI_Controller
         }
         $output .= '</table>';
         echo $output;
+    }
+    public function print_pdf_with_image()
+    {
+        $this->load->library('pdf');
+        $this->load->helper('file');
+        $record_id = 3;
+        $data = $this->Quires->cra_show_record($record_id);
+        $logo_image = file_get_contents('assets/images/logo.png');
+        $logo_data_uri = 'data:image/png;base64,' . base64_encode($logo_image);
+        $html_content = '';
+        $prev_processing_step = '';
+        $html_content .= '
+        <style>
+        div.layout-978 { width: 978px; margin: 0px auto; }
+        
+        div.tblcontainer {
+            padding: 18px;
+            border: 1px solid #c0c0c0;
+            margin: 20px auto;
+            -moz-border-radius: 4px;
+            -webkit-border-radius: 4px;
+            border-radius: 4px; /* future proofing */
+            -khtml-border-radius: 4px; /* for old Konqueror browsers */
+            width: 93%;	
+        }
+        
+        table {
+            border-collapse: collapse;
+          }
+          
+          td, th {
+            border: 1px solid  #949494;
+            padding: 8px;
+          }
+        
+        .datagrid {
+            border-collapse: collapse;
+        }
+        
+        .datagrid thead tr th {
+            background: #8080801f;
+            color: #fffff;
+            font-size: 11px;
+            font-weight: normal;
+            text-align: left;
+            padding: 6px 8px;
+            border: 1px solid #c9c9c9;
+        }
+        .datagrid tbody tr {
+            background: #fff;
+        }
+        
+        .datagrid tbody tr td {
+            font-size: 10px;
+            text-align:center;
+            padding: 6px 8px;
+            border: 1px solid #c9c9c9;
+        }
+       .signature-container-wrapper {
+            width: 100%;
+            max-width: 800px; /* set a maximum width for the table */
+            margin: 0 auto;
+            border-collapse: collapse;
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            }
+
+
+        .signature-container {
+        padding: 10px;
+        text-align: center;
+        }
+
+        .signature-container hr {
+        border: none;
+        border-top: 1px solid #000;
+        margin: 10px 0;
+        }
+
+        .signature-container .name {
+        font-weight: bold;
+        margin-bottom: 5px;
+        }
+
+        .signature-container .position {
+        margin-bottom: 5px;
+        }
+
+        .signature-container .date {
+        margin-top: 5px;
+        }    
+        .datagrid tbody tr td.cash {
+            text-align: right;
+        }
+        </style>
+            <table class="datagrid"> 
+            <center><img width="70%" src="'.$logo_data_uri.'"></center>
+                <thead>
+                    <tr>
+                        <th rowspan="2">
+                            Processing Step
+                        </th>
+                        <th colspan="2">
+                            <p>Identify potential food safety hazards introduced, controlled, or enhanced at this step</p>
+                        </th>
+                        <th colspan="2">Do any potential food safety hazards require preventive control?</th>
+                        <th rowspan="2">Justify your decision for column 3</th>
+                        <th rowspan="2">
+                            <p style="text-align:center;">Whatpreventive control measure(s) can be applied to significantly minimize or prevent the food safety hazard?Process including CCPs, Allergen, Sanitation, Supply- chain, other preventive control</p>
+                        </th>
+                        <th colspan="2">Is the preventive control applied at this step?</th>
+                    </tr>
+                    <tr>
+                        <th></th>
+                        <th></th>
+                        <th>YES</th>
+                        <th>NO</th>
+                        <th>YES</th>
+                        <th>NO</th>
+                    </tr>
+                </thead>
+                <tbody >';
+        foreach ($data as $key => $row) {
+            $cra_prvntv_ctrl_true = ($row->cra_prvntv_ctrl_record == 1) ? '<input type="checkbox" value="" checked="checked" />' : '-';
+            $cra_prvntv_ctrl_false = ($row->cra_prvntv_ctrl_record == 0) ? '<input type="checkbox" value="" checked="checked" />' : '-';
+            $cra_is_applied_true = ($row->cra_is_applied_record == 1) ? '<input type="checkbox" value="" checked="checked" />' : '-';
+            $cra_is_applied_false = ($row->cra_is_applied_record == 0) ? '<input type="checkbox" value="" checked="checked" />' : '-';
+
+            if ($prev_processing_step != $row->id_report) {
+                $count = count(array_filter($data, function ($d) use ($row) {
+                    return $d->id_report == $row->id_report;
+                }));
+                $html_content .= '
+                        <tr>
+                            <td rowspan="' . $count . '" >
+                            ' . $row->processing_step . '
+                                 
+                            </td>
+                           <td>
+                            ' . $row->legend_name . '    
+                            </td>
+                            <td>
+                                 ' . $row->legend_desc . '
+                            
+                            </td>
+                            <td>
+                           ' . $cra_prvntv_ctrl_true . '
+                            </td>
+                            <td>
+                               ' . $cra_prvntv_ctrl_false . '
+                            </td>
+                            <td>
+                                  ' . $row->cra_jstify_record . '
+                             
+                            </td>
+                            <td>
+                                 ' . $row->cra_food_safety_hazard_record . '
+                             
+                            </td>
+                             <td>
+                             ' .  $cra_is_applied_true  . '
+                            </td>
+                             <td>
+                             ' . $cra_is_applied_false . '
+                            </td>
+                        </tr> ';
+            } else {
+                $html_content .= '
+                        <tr>
+                            <td>
+                                    ' . $row->legend_name . ' 
+                           
+                            </td>
+                            <td >
+                            
+                                  ' . $row->legend_desc . '
+                                 
+                            </td>
+                             <td>
+                             ' . $cra_prvntv_ctrl_true . '
+                            </td>
+                            <td>
+                            ' . $cra_prvntv_ctrl_false . '
+                            </td>
+                            <td>
+                                  ' . $row->cra_jstify_record . '
+                                 
+                            </td>
+                            <td>
+                                  ' . $row->cra_food_safety_hazard_record . '
+                                  
+                              
+                            </td>
+                            <td>
+                           ' .  $cra_is_applied_true  . '
+                            </td>
+                            <td>
+                          ' . $cra_is_applied_false . '
+                         
+                            </td>
+                        </tr> ';
+            }
+            $prev_processing_step = $row->id_report;
+        }
+        $sign1_data_uri = $row->rev_sign;
+        // reviewed date
+        $rev_date =  $row->rev_date;
+        $rev_timestamp = strtotime($rev_date);
+        $rev_formattedDate = date('M j, Y', $rev_timestamp);
+        // approval date
+        $appr_date =  $row->appr_date;
+        $appr_timestamp = strtotime($appr_date);
+        $appr_formattedDate = date('M j, Y', $appr_timestamp);
+        $html_content .= '
+        
+                </tbody>
+                </table>
+                <br>
+                <table class="signature-container-wrapper">
+            <tr>
+                <td class="signature-container">
+                <image width="50%" src="' . $sign1_data_uri . '">
+                <hr>
+                <div class="name">' . $row->rev_name . '</div>
+                <div class="position">' . $row->rev_position . '</div>
+                <div class="date">' . $rev_formattedDate . '</div>
+              
+                </td>
+                <td class="signature-container">
+                 <image src="' . $row->appr_sign . '">
+                <hr>
+                <div class="name">' . $row->appr_name . '</div>
+                <div class="position">' . $row->appr_position . '</div>
+                <div class="date">' . $appr_formattedDate . '</div>
+                </td>
+            </tr>
+            </table>
+            </div>';
+        $this->pdf->load_html($html_content);
+        $this->pdf->render();
+
+        // Print the PDF
+        $this->pdf->stream("pdf_with_image.pdf", array("Attachment" => false));
     }
 
     public function pdf() {
@@ -368,12 +617,39 @@ class Forms extends CI_Controller
             }
             $prev_cra_proccessing_id= $row->id_report;
         }
-        $output .='
+        // reviewed date
+        $rev_date =  $row->rev_date;
+        $rev_timestamp = strtotime($rev_date);
+        $rev_formattedDate = date('M j, Y', $rev_timestamp);
+        // approval date
+        $appr_date =  $row->appr_date;
+        $appr_timestamp = strtotime($appr_date);
+        $appr_formattedDate = date('M j, Y', $appr_timestamp);
+
+        $output .= '
         </tbody>
         </table>
         </div>
     </div>
 </div>
+<hr>
+<div class="signature-container-wrapper">
+  <div class="signature-container">
+  <image src="' . $row->rev_sign . '">
+    <hr>
+    <div class="name">' . $row->rev_name . '</div>
+    <div class="position">' . $row->rev_position . '</div>
+    <div class="date">' . $rev_formattedDate. '</div>
+  </div>
+  <div class="signature-container">
+  <image src="' . $row->appr_sign . '">
+    <hr>
+     <div class="name">' . $row->appr_name . '</div>
+    <div class="position">' . $row->appr_position . '</div>
+    <div class="date">' . $appr_formattedDate. '</div>
+  </div>
+</div>
+<br>
 <div class="modal-footer">
     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
     <a id="'.$row->table_id.'" class="pdfPrint btn btn-primary">Print</a>
@@ -583,7 +859,6 @@ class Forms extends CI_Controller
                     $output .= '
                 <tr>
                     <td rowspan="' . $count . '" >
-                  
                         <div style="padding:1em;" name="processing_step" contenteditable="true" id="' . $row->p_step_id . '">' . $row->processing_step . '</div>
                          <a id="' . $row->p_step_id . '" class="p_step_remove" style="font-size:15px;position: absolute;margin-top: -3.6000000000000014em;/* margin-right: -69.8em; */">
                          <i class="fa fa-minus-circle" aria-hidden="true"></i>
@@ -721,7 +996,7 @@ class Forms extends CI_Controller
                 if(isset($_POST['save_record'])){
                     try {
                         if (isset($_FILES['reviewer_sign_img']['name'])) {
-                            $uploaddir = './uploads/wtr/images/';
+                            $uploaddir = './uploads/fwcc/images/';
                             $sign1   = basename($_FILES['reviewer_sign_img']['name']);
                             $uploadfile = $uploaddir . $sign1;
                             move_uploaded_file($_FILES['reviewer_sign_img']['tmp_name'], $uploadfile);
@@ -729,7 +1004,7 @@ class Forms extends CI_Controller
                             $sign1 = '';
                         }
                         if (isset($_FILES['approver_sign_img']['name'])) {
-                            $uploaddir = './uploads/wtr/images/';
+                            $uploaddir = './uploads/fwcc/images/';
                             $sign2   = basename($_FILES['approver_sign_img']['name']);
                             $uploadfile = $uploaddir . $sign2;
                             move_uploaded_file($_FILES['approver_sign_img']['tmp_name'], $uploadfile);
@@ -752,7 +1027,33 @@ class Forms extends CI_Controller
                             'cra_food_safety_hazard_record' => $cra_food_safety_hazard_record,
                             'cra_is_applied_record' => $cra_is_applied_record,
                         );
-                        $this->Quires->insert_cra_record($insert_record);
+
+                        $table_id = 1;
+                        $this->db->select('table_id');
+                        $this->db->from('cra_record');
+                        $query = $this->db->get();
+                        $existing_records = $query->result();
+                        foreach ($existing_records as $record) {
+                            if ($record->table_id == $table_id
+                            ) {
+                                $table_id++;
+                            }
+                        }
+                            $for_reviewer = array(
+                            'table_id' => $table_id,
+                            'rev_name' => $this->input->post('reviewer_name'),
+                            'rev_sign' => $this->input->post('reviewer_sign'),
+                            'rev_sign_image' => $sign1,
+                            'rev_position' => $this->input->post('r_position'),
+                            'rev_date' => $this->input->post('reviewed_date'),
+                            'appr_name' => $this->input->post('approver_name'),
+                            'appr_sign' => $this->input->post('approver_sign'),
+                            'appr_sign_image' => $sign2,
+                            'appr_position' => $this->input->post('a_position'),
+                            'appr_date' => $this->input->post('approved_date')
+                        );
+
+                        $this->Quires->insert_cra_record($insert_record, $for_reviewer);
                         $this->session->set_flashdata('success_msg', 'Inserted Successfully!');
                         redirect('forms/fwc_cra/list');
                     } catch(\Exception $e) {
