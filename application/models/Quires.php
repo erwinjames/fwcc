@@ -226,11 +226,8 @@ error_reporting(E_ALL);
 			$cra_records_succ = $this->db->insert('cra_record', $insertedRecord);
 		}
 
-		$success = $this->insert_batch($reviewer, 'cra_reviewer_sign');
-		if($success) {
+		$this->insert_batch($reviewer, 'cra_reviewer_sign');
 			$this->db->update('fwc_cra', array('cra_prvntv_ctrl' => NULL, 'cra_is_applied' => NULL));
-		}
-
 		
 	}
 

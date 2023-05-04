@@ -55,7 +55,7 @@ class Forms extends CI_Controller
     {
         $this->load->library('pdf');
         $this->load->helper('file');
-        $record_id = 3;
+        $record_id = 1;
         $data = $this->Quires->cra_show_record($record_id);
         $logo_image = file_get_contents('assets/images/logo.png');
         $logo_data_uri = 'data:image/png;base64,' . base64_encode($logo_image);
@@ -264,7 +264,6 @@ class Forms extends CI_Controller
         $appr_timestamp = strtotime($appr_date);
         $appr_formattedDate = date('M j, Y', $appr_timestamp);
         $html_content .= '
-        
                 </tbody>
                 </table>
                 <br>
@@ -484,12 +483,12 @@ class Forms extends CI_Controller
         <div class="col-xs-12">
          <div>
             <center>
-                <h4>Clothing Risk Analysis</h4>
+                ' . $this->cra_legend_show() . '
             </center> 
         </div>
-        <div class="table-responsive">
+        <div>
             <table class="table table-bordered table-hover" id="mytable">
-             ' . $this->cra_legend_show() . '
+           
                 <thead>
                     <tr>
                         <th rowspan="2" class="px-4 py-2 text-center">
