@@ -8,7 +8,7 @@
     .signature-container {
         text-align: center;
         font-family: Arial, sans-serif;
-        font-size: 16px;
+        font-size: 12px;
         flex-basis: 50%;
         /* Set the width of each signature container to 50% */
     }
@@ -16,7 +16,7 @@
     .signature-container hr {
         border: none;
         border-top: 1px solid #000;
-        width:300px;
+        width:200px;
 
     }
 

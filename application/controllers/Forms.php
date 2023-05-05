@@ -658,17 +658,18 @@ class Forms extends CI_Controller
         </div>
     </div>
 </div>
+<br>
 <hr>
 <div class="signature-container-wrapper">
   <div class="signature-container">
-  <image src="' . $row->rev_sign . '">
+  Reviewed By:<br><br><image  width="30%" src="' . $row->rev_sign . '">
     <hr>
     <div class="name">' . $row->rev_name . '</div>
     <div class="position">' . $row->rev_position . '</div>
     <div class="date">' . $rev_formattedDate. '</div>
   </div>
   <div class="signature-container">
-  <image src="' . $row->appr_sign . '">
+  Approved By:<br><br><image width="30%" src="' . $row->appr_sign . '">
     <hr>
      <div class="name">' . $row->appr_name . '</div>
     <div class="position">' . $row->appr_position . '</div>
