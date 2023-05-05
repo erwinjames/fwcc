@@ -830,7 +830,7 @@ class Forms extends CI_Controller
             <div class="col-xs-12">
 
                 <div class="card-body" >
-                    <div class="table-responsive" style="height: 600px; ">
+                    <div class="table-responsive" style="height: 400px; ">
                         <table class="table-responsive table table-bordered table-hover" id="mytable"  style="overflow-y:scroll;">
                             <thead class="bg-gray-200">
                                 <tr>
