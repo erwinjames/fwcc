@@ -27,35 +27,36 @@ class Forms extends CI_Controller
         $image = base_url('assets/images/logo.png');
         $data = $this->Quires->show('cra_legend');
         $output = '';
-        $output .= ' 
-
-        <table class="table" style="width: 100%;font-size: 12px;">
-           <center> <img src="' . $image . '" alt="fwc" width="10%"> </center>
-           <br>
-           <h5>Hazard Analysis</h5>
-           <p style="font-size:12px">Hazard identification (column 2) considers known or reasonably
-            foreseeable hazards (i.e., potential hazards) present in the food because 
-           the hazard occurs naturally; the hazard may be unintentionally introduced.</p>
-        ';
+        $output .= '<table class="table" style="width: 80%;font-size: 12px; margin: 0 auto;">
+                    <thead>
+                        <tr>
+                            <th colspan="2">
+                                <center><img src="' . $image . '" alt="fwc" width="15%"></center>
+                                <br>
+                               <center><h5>Hazard Analysis</h5></center>
+                                <p style="font-size:12px"> Hazard identification (column 2) considers known or reasonably foreseeable hazards 
+                                (i.e., potential hazards) present in the food because the hazard occurs naturally; the hazard may be unintentionally introduced.</p>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>';
         foreach ($data as $row) {
-            $output .= '
-          
-                <tbody style="background-color: #6c757d54;">
-                    <tr>
-                        <td style="font-size:10px"><b>' . $row->legend_name . '=</b></td>
-                        <td><span style="font-size:10px">' . $row->legend_mean . '</span></td>
-                    </tr>
-                </tbody>
-            ';
+            $output .= '<tr style="text-align:left;">
+                        <td style="font-size:14px"><b>' . $row->legend_name . ':</b></td>
+                        <td><span style="font-size:12px">' . $row->legend_mean . '</span></td>
+                      </tr>';
         }
-        $output .= '</table>';
+        $output .= '</tbody>
+                </table>';
         echo $output;
     }
+
     public function print_pdf_with_image()
     {
+
         $this->load->library('pdf');
         $this->load->helper('file');
-        $record_id = 1;
+        $record_id = $this->input->post('id');
         $data = $this->Quires->cra_show_record($record_id);
         $logo_image = file_get_contents('assets/images/logo.png');
         $logo_data_uri = 'data:image/png;base64,' . base64_encode($logo_image);
@@ -81,7 +82,6 @@ class Forms extends CI_Controller
           }
           
           td, th {
-            border: 1px solid  #949494;
             padding: 8px;
           }
         
@@ -126,20 +126,23 @@ class Forms extends CI_Controller
         .signature-container hr {
         border: none;
         border-top: 1px solid #000;
-        margin: 10px 0;
+        width:160px;
         }
 
         .signature-container .name {
         font-weight: bold;
+        font-size: 12px;
         margin-bottom: 5px;
         }
 
         .signature-container .position {
         margin-bottom: 5px;
+        font-size: 12px;
         }
 
         .signature-container .date {
         margin-top: 5px;
+        font-size: 12px;
         }    
         .datagrid tbody tr td.cash {
             text-align: right;
@@ -254,7 +257,30 @@ class Forms extends CI_Controller
             }
             $prev_processing_step = $row->id_report;
         }
-        $sign1_data_uri = $row->rev_sign;
+        $imageData = $row->rev_sign;
+        $imageData = str_replace('data:image/png;base64,', '', $imageData);
+        $imageData = str_replace(' ', '+', $imageData);
+        $imageBinary = base64_decode($imageData);
+        $file_path = FCPATH . 'assets/sign1.png';
+        write_file($file_path, $imageBinary);
+        $sign_image = file_get_contents(base_url('assets/sign1.png'));
+        $sign_data_uri = 'data:image/png;base64,' . base64_encode($sign_image);
+        // sign 2
+        $imageData2 = $row->appr_sign;
+        $imageData2 = str_replace('data:image/png;base64,', '', $imageData2);
+        $imageData2 = str_replace(' ', '+', $imageData2);
+        $imageBinary2 = base64_decode($imageData2);
+        $file_path2 = FCPATH . 'assets/sign2.png';
+        write_file($file_path2, $imageBinary2);
+        $sign_image2 = file_get_contents(base_url('assets/sign2.png'));
+        $sign_data_uri2 = 'data:image/png;base64,' . base64_encode($sign_image2);
+      
+        // reviewed date
+        $rev_date =  $row->rev_date;
+        $rev_formattedDate = date('M j, Y', strtotime($rev_date));
+        // approval date
+        $appr_date =  $row->appr_date;
+        $appr_formattedDate = date('M j, Y', strtotime($appr_date));
         // reviewed date
         $rev_date =  $row->rev_date;
         $rev_timestamp = strtotime($rev_date);
@@ -270,7 +296,7 @@ class Forms extends CI_Controller
                 <table class="signature-container-wrapper">
             <tr>
                 <td class="signature-container">
-                <image width="50%" src="' . $sign1_data_uri . '">
+               <h6>Reviewed By:<h6><br> <img width="40%" src="'.$sign_data_uri.'">
                 <hr>
                 <div class="name">' . $row->rev_name . '</div>
                 <div class="position">' . $row->rev_position . '</div>
@@ -278,7 +304,7 @@ class Forms extends CI_Controller
               
                 </td>
                 <td class="signature-container">
-                 <image src="' . $row->appr_sign . '">
+                <h6>Approved By:<h6><br> <img width="40%" src="'.$sign_data_uri2.'">
                 <hr>
                 <div class="name">' . $row->appr_name . '</div>
                 <div class="position">' . $row->appr_position . '</div>
@@ -294,182 +320,182 @@ class Forms extends CI_Controller
         $this->pdf->stream("pdf_with_image.pdf", array("Attachment" => false));
     }
 
-    public function pdf() {
-        $this->load->library('pdf');
-        $record_id = $this->input->post('id');
-        $data = $this->Quires->cra_show_record($record_id);
-        $html_content='';
-        $prev_processing_step = '';
-        $html_content .='
-        <style>
-        div.layout-978 { width: 978px; margin: 0px auto; }
+    // public function pdf() {
+    //     $this->load->library('pdf');
+    //     $record_id = $this->input->post('id');
+    //     $data = $this->Quires->cra_show_record($record_id);
+    //     $html_content='';
+    //     $prev_processing_step = '';
+    //     $html_content .='
+    //     <style>
+    //     div.layout-978 { width: 978px; margin: 0px auto; }
         
-        div.tblcontainer {
-            padding: 18px;
-            border: 1px solid #c0c0c0;
-            margin: 20px auto;
-            -moz-border-radius: 4px;
-            -webkit-border-radius: 4px;
-            border-radius: 4px; /* future proofing */
-            -khtml-border-radius: 4px; /* for old Konqueror browsers */
-            width: 93%;	
-        }
+    //     div.tblcontainer {
+    //         padding: 18px;
+    //         border: 1px solid #c0c0c0;
+    //         margin: 20px auto;
+    //         -moz-border-radius: 4px;
+    //         -webkit-border-radius: 4px;
+    //         border-radius: 4px; /* future proofing */
+    //         -khtml-border-radius: 4px; /* for old Konqueror browsers */
+    //         width: 93%;	
+    //     }
         
-        table {
-            border-collapse: collapse;
-          }
+    //     table {
+    //         border-collapse: collapse;
+    //       }
           
-          td, th {
-            border: 1px solid  #949494;
-            padding: 8px;
-          }
+    //       td, th {
+    //         border: 1px solid  #949494;
+    //         padding: 8px;
+    //       }
         
-        .datagrid {
-            border-collapse: collapse;
-        }
+    //     .datagrid {
+    //         border-collapse: collapse;
+    //     }
         
-        .datagrid thead tr th {
-            background: #8080801f;
-            color: #fffff;
-            font-size: 11px;
-            font-weight: normal;
-            text-align: left;
-            padding: 6px 8px;
-            border: 1px solid #c9c9c9;
-        }
-        .datagrid tbody tr {
-            background: #fff;
-        }
+    //     .datagrid thead tr th {
+    //         background: #8080801f;
+    //         color: #fffff;
+    //         font-size: 11px;
+    //         font-weight: normal;
+    //         text-align: left;
+    //         padding: 6px 8px;
+    //         border: 1px solid #c9c9c9;
+    //     }
+    //     .datagrid tbody tr {
+    //         background: #fff;
+    //     }
         
-        .datagrid tbody tr td {
-            font-size: 10px;
-            text-align:center;
-            padding: 6px 8px;
-            border: 1px solid #c9c9c9;
-        }
+    //     .datagrid tbody tr td {
+    //         font-size: 10px;
+    //         text-align:center;
+    //         padding: 6px 8px;
+    //         border: 1px solid #c9c9c9;
+    //     }
         
         
-        .datagrid tbody tr td.cash {
-            text-align: right;
-        }
-        </style>
-            <table class="datagrid"> 
-                <thead>
-                    <tr>
-                        <th rowspan="2">
-                            Processing Step
-                        </th>
-                        <th colspan="2">
-                            <p>Identify potential food safety hazards introduced, controlled, or enhanced at this step</p>
-                        </th>
-                        <th colspan="2">Do any potential food safety hazards require preventive control?</th>
-                        <th rowspan="2">Justify your decision for column 3</th>
-                        <th rowspan="2">
-                            <p style="text-align:center;">Whatpreventive control measure(s) can be applied to significantly minimize or prevent the food safety hazard?Process including CCPs, Allergen, Sanitation, Supply- chain, other preventive control</p>
-                        </th>
-                        <th colspan="2">Is the preventive control applied at this step?</th>
-                    </tr>
-                    <tr>
-                        <th></th>
-                        <th></th>
-                        <th>YES</th>
-                        <th>NO</th>
-                        <th>YES</th>
-                        <th>NO</th>
-                    </tr>
-                </thead>
-                <tbody >';
-                foreach ($data as $key => $row) {
-                    $cra_prvntv_ctrl_true = ($row->cra_prvntv_ctrl_record == 1) ? '<input type="checkbox" value="" checked="checked" />' : '-';
-                    $cra_prvntv_ctrl_false = ($row->cra_prvntv_ctrl_record == 0) ? '<input type="checkbox" value="" checked="checked" />' : '-';
-                    $cra_is_applied_true = ($row->cra_is_applied_record == 1) ? '<input type="checkbox" value="" checked="checked" />' : '-';
-                    $cra_is_applied_false = ($row->cra_is_applied_record == 0) ? '<input type="checkbox" value="" checked="checked" />' : '-';
+    //     .datagrid tbody tr td.cash {
+    //         text-align: right;
+    //     }
+    //     </style>
+    //         <table class="datagrid"> 
+    //             <thead>
+    //                 <tr>
+    //                     <th rowspan="2">
+    //                         Processing Step
+    //                     </th>
+    //                     <th colspan="2">
+    //                         <p>Identify potential food safety hazards introduced, controlled, or enhanced at this step</p>
+    //                     </th>
+    //                     <th colspan="2">Do any potential food safety hazards require preventive control?</th>
+    //                     <th rowspan="2">Justify your decision for column 3</th>
+    //                     <th rowspan="2">
+    //                         <p style="text-align:center;">Whatpreventive control measure(s) can be applied to significantly minimize or prevent the food safety hazard?Process including CCPs, Allergen, Sanitation, Supply- chain, other preventive control</p>
+    //                     </th>
+    //                     <th colspan="2">Is the preventive control applied at this step?</th>
+    //                 </tr>
+    //                 <tr>
+    //                     <th></th>
+    //                     <th></th>
+    //                     <th>YES</th>
+    //                     <th>NO</th>
+    //                     <th>YES</th>
+    //                     <th>NO</th>
+    //                 </tr>
+    //             </thead>
+    //             <tbody >';
+    //             foreach ($data as $key => $row) {
+    //                 $cra_prvntv_ctrl_true = ($row->cra_prvntv_ctrl_record == 1) ? '<input type="checkbox" value="" checked="checked" />' : '-';
+    //                 $cra_prvntv_ctrl_false = ($row->cra_prvntv_ctrl_record == 0) ? '<input type="checkbox" value="" checked="checked" />' : '-';
+    //                 $cra_is_applied_true = ($row->cra_is_applied_record == 1) ? '<input type="checkbox" value="" checked="checked" />' : '-';
+    //                 $cra_is_applied_false = ($row->cra_is_applied_record == 0) ? '<input type="checkbox" value="" checked="checked" />' : '-';
                     
-                    if ($prev_processing_step != $row->id_report) {
-                        $count = count(array_filter($data, function ($d) use ($row) {
-                            return $d->id_report == $row->id_report;
-                        }));
-                        $html_content .= '
-                        <tr>
-                            <td rowspan="' . $count . '" >
-                            '.$row->processing_step. '
+    //                 if ($prev_processing_step != $row->id_report) {
+    //                     $count = count(array_filter($data, function ($d) use ($row) {
+    //                         return $d->id_report == $row->id_report;
+    //                     }));
+    //                     $html_content .= '
+    //                     <tr>
+    //                         <td rowspan="' . $count . '" >
+    //                         '.$row->processing_step. '
                                  
-                            </td>
-                           <td>
-                            ' . $row->legend_name . '    
-                            </td>
-                            <td>
-                                 ' . $row->legend_desc . '
+    //                         </td>
+    //                        <td>
+    //                         ' . $row->legend_name . '    
+    //                         </td>
+    //                         <td>
+    //                              ' . $row->legend_desc . '
                             
-                            </td>
-                            <td>
-                           ' .$cra_prvntv_ctrl_true. '
-                            </td>
-                            <td>
-                               ' . $cra_prvntv_ctrl_false . '
-                            </td>
-                            <td>
-                                  ' . $row->cra_jstify_record . '
+    //                         </td>
+    //                         <td>
+    //                        ' .$cra_prvntv_ctrl_true. '
+    //                         </td>
+    //                         <td>
+    //                            ' . $cra_prvntv_ctrl_false . '
+    //                         </td>
+    //                         <td>
+    //                               ' . $row->cra_jstify_record . '
                              
-                            </td>
-                            <td>
-                                 ' . $row->cra_food_safety_hazard_record . '
+    //                         </td>
+    //                         <td>
+    //                              ' . $row->cra_food_safety_hazard_record . '
                              
-                            </td>
-                             <td>
-                             ' .  $cra_is_applied_true  . '
-                            </td>
-                             <td>
-                             ' . $cra_is_applied_false.'
-                            </td>
-                        </tr> ';
-                    }else{
-                        $html_content .= '
-                        <tr>
-                            <td>
-                                    ' . $row->legend_name . ' 
+    //                         </td>
+    //                          <td>
+    //                          ' .  $cra_is_applied_true  . '
+    //                         </td>
+    //                          <td>
+    //                          ' . $cra_is_applied_false.'
+    //                         </td>
+    //                     </tr> ';
+    //                 }else{
+    //                     $html_content .= '
+    //                     <tr>
+    //                         <td>
+    //                                 ' . $row->legend_name . ' 
                            
-                            </td>
-                            <td >
+    //                         </td>
+    //                         <td >
                             
-                                  ' . $row->legend_desc . '
+    //                               ' . $row->legend_desc . '
                                  
-                            </td>
-                             <td>
-                             ' .$cra_prvntv_ctrl_true. '
-                            </td>
-                            <td>
-                            ' . $cra_prvntv_ctrl_false . '
-                            </td>
-                            <td>
-                                  ' . $row->cra_jstify_record . '
+    //                         </td>
+    //                          <td>
+    //                          ' .$cra_prvntv_ctrl_true. '
+    //                         </td>
+    //                         <td>
+    //                         ' . $cra_prvntv_ctrl_false . '
+    //                         </td>
+    //                         <td>
+    //                               ' . $row->cra_jstify_record . '
                                  
-                            </td>
-                            <td>
-                                  ' . $row->cra_food_safety_hazard_record . '
+    //                         </td>
+    //                         <td>
+    //                               ' . $row->cra_food_safety_hazard_record . '
                                   
                               
-                            </td>
-                            <td>
-                           ' .  $cra_is_applied_true  . '
-                            </td>
-                            <td>
-                          ' . $cra_is_applied_false. '
+    //                         </td>
+    //                         <td>
+    //                        ' .  $cra_is_applied_true  . '
+    //                         </td>
+    //                         <td>
+    //                       ' . $cra_is_applied_false. '
                          
-                            </td>
-                        </tr> ';
-                    }
-            $prev_processing_step= $row->id_report;
-                } 
-                $html_content.='
-                </tbody>
-                </table>
-            </div>';
-                $this->pdf->setPaper('A4', 'landscape');
-                $this->pdf->loadHtml($html_content);
-                $this->pdf->render();
-                $this->pdf->stream("sample.pdf", array("Attachment"=>0));
-    }
+    //                         </td>
+    //                     </tr> ';
+    //                 }
+    //         $prev_processing_step= $row->id_report;
+    //             } 
+    //             $html_content.='
+    //             </tbody>
+    //             </table>
+    //         </div>';
+    //             $this->pdf->setPaper('A4', 'landscape');
+    //             $this->pdf->loadHtml($html_content);
+    //             $this->pdf->render();
+    //             $this->pdf->stream("sample.pdf", array("Attachment"=>0));
+    // }
     
     public function cra_show_table_record()
     {
@@ -631,17 +657,18 @@ class Forms extends CI_Controller
         </div>
     </div>
 </div>
+<br>
 <hr>
 <div class="signature-container-wrapper">
   <div class="signature-container">
-  <image src="' . $row->rev_sign . '">
+  Reviewed By:<br><br><image  width="30%" src="' . $row->rev_sign . '">
     <hr>
     <div class="name">' . $row->rev_name . '</div>
     <div class="position">' . $row->rev_position . '</div>
     <div class="date">' . $rev_formattedDate. '</div>
   </div>
   <div class="signature-container">
-  <image src="' . $row->appr_sign . '">
+  Approved By:<br><br><image width="30%" src="' . $row->appr_sign . '">
     <hr>
      <div class="name">' . $row->appr_name . '</div>
     <div class="position">' . $row->appr_position . '</div>
@@ -801,7 +828,7 @@ class Forms extends CI_Controller
         <div class="row">
             <div class="col-xs-12">
 
-                <div class="card-body">
+                <div class="card-body" >
                     <div class="table-responsive">
                         <table class="table-responsive table table-bordered table-hover" id="mytable">
                             <thead class="bg-gray-200">
@@ -815,7 +842,7 @@ class Forms extends CI_Controller
                                     <th colspan="2" class="px-4 py-2 text-center">Do any potential food safety hazards require preventive control?</th>
                                     <th rowspan="2" class="px-4 py-2 text-center">Justify your decision for column 3</th>
                                     <th rowspan="2" class="px-4 py-2 text-left">
-                                        <p style="text-align:center;">Whatpreventive control measure(s) can be applied to significantly minimize or prevent the food safety hazard?Process including CCPs, Allergen, Sanitation, Supply- chain, other preventive control</p>
+                                        <p style="text-align:center;">What preventive control measure(s) can be applied to significantly minimize or prevent the food safety hazard?Process including CCPs, Allergen, Sanitation, Supply- chain, other preventive control</p>
                                     </th>
                                     <th colspan="2" class="px-4 py-2" name="ifdiag">Is the preventive control applied at this step?</th>
 
@@ -836,6 +863,20 @@ class Forms extends CI_Controller
                 $count = count(array_filter($data, function ($d) use ($row) {
                     return $d->cra_proccessing_id == $row->cra_proccessing_id;
                 }));
+                if($row->cra_is_applied == NULL){
+                    $cra_is_applied_true = ($row->cra_is_applied == 1) ? ' <label class="custom-radio">
+                    <input contenteditable="true" onblur="updateRadioValue(this)" data-column="cra_is_applied" data-id="' . $row->legend_id . '" id="' . $row->id . '" type="radio" value="1" name="cra_is_applied_' . $row->id . $count . '">
+                    <span class="checkmark"></span>
+                </label>' : ' <label class="custom-radio">
+                    <input contenteditable="true" onblur="updateRadioValue(this)" data-column="cra_is_applied" data-id="' . $row->legend_id . '" id="' . $row->id . '" type="radio" value="1" name="cra_is_applied_' . $row->id . $count . '">
+                    <span class="checkmark"></span>
+                </label>';
+                $cra_is_applied_false = ($row->cra_is_applied == 0) ? '<label class="custom-radio">
+                <input contenteditable="true" onblur="updateRadioValue(this)" data-column="cra_is_applied" data-id="' . $row->legend_id . '" type="radio" id="' . $row->id . '" value="0" name="cra_is_applied_' . $row->id . $count . '">
+                <span class="checkmark"></span>' : '<label class="custom-radio">
+                <input contenteditable="true" onblur="updateRadioValue(this)" data-column="cra_is_applied" data-id="' . $row->legend_id . '" type="radio" id="' . $row->id . '" value="0" name="cra_is_applied_' . $row->id . $count . '">
+                <span class="checkmark"></span>';
+                }else{
                 $cra_is_applied_true = ($row->cra_is_applied == 1) ? '<i class="fa fa-check-circle" style="font-size:20px;"></i>' : ' <label class="custom-radio">
                                                                                                                                             <input contenteditable="true" onblur="updateRadioValue(this)" data-column="cra_is_applied" data-id="' . $row->legend_id . '" id="' . $row->id . '" type="radio" value="1" name="cra_is_applied_' . $row->id . $count . '">
                                                                                                                                             <span class="checkmark"></span>
@@ -843,6 +884,23 @@ class Forms extends CI_Controller
                 $cra_is_applied_false = ($row->cra_is_applied == 0) ? '<i class="fa fa-check-circle" style="font-size:20px;"></i>' : '<label class="custom-radio">
                                                                                                                                         <input contenteditable="true" onblur="updateRadioValue(this)" data-column="cra_is_applied" data-id="' . $row->legend_id . '" type="radio" id="' . $row->id . '" value="0" name="cra_is_applied_' . $row->id . $count . '">
                                                                                                                                         <span class="checkmark"></span>';
+                }
+                if($row->cra_prvntv_ctrl== NULL){
+                    $cra_prvntv_ctrl_true = ($row->cra_prvntv_ctrl == 1) ? '<label class="custom-radio">
+                    <input contenteditable="true" onblur="updateRadioValue(this)" data-column="cra_prvntv_ctrl" data-id="' . $row->legend_id . '" id="' . $row->id . '" type="radio" value="1" name="prventveCntrl_' . $row->id . $count . '" >
+                    <span class="checkmark"></span>
+                    </label>' : ' <label class="custom-radio">
+                    <input contenteditable="true" onblur="updateRadioValue(this)" data-column="cra_prvntv_ctrl" data-id="' . $row->legend_id . '" id="' . $row->id . '" type="radio" value="1" name="prventveCntrl_' . $row->id . $count . '" >
+                    <span class="checkmark"></span>
+                    </label>';
+                $cra_prvntv_ctrl_false = ($row->cra_prvntv_ctrl == 0) ? '<label class="custom-radio">
+                <input contenteditable="true" onblur="updateRadioValue(this)" type="radio" data-column="cra_prvntv_ctrl" data-id="' . $row->legend_id . '" id="' . $row->id . '" value="0" name="prventveCntrl_' . $row->id . $count . '" >
+                <span class="checkmark"></span>
+            </label' : ' <label class="custom-radio">
+                        <input contenteditable="true" onblur="updateRadioValue(this)" type="radio" data-column="cra_prvntv_ctrl" data-id="' . $row->legend_id . '" id="' . $row->id . '" value="0" name="prventveCntrl_' . $row->id . $count . '" >
+                        <span class="checkmark"></span>
+                    </label>';
+                }else{
                 $cra_prvntv_ctrl_true = ($row->cra_prvntv_ctrl == 1) ? '<i class="fa fa-check-circle" style="font-size:20px;"></i>' : ' <label class="custom-radio">
                                                                                                                                         <input contenteditable="true" onblur="updateRadioValue(this)" data-column="cra_prvntv_ctrl" data-id="' . $row->legend_id . '" id="' . $row->id . '" type="radio" value="1" name="prventveCntrl_' . $row->id . $count . '" >
                                                                                                                                         <span class="checkmark"></span>
@@ -851,25 +909,26 @@ class Forms extends CI_Controller
                                                                                                                                             <input contenteditable="true" onblur="updateRadioValue(this)" type="radio" data-column="cra_prvntv_ctrl" data-id="' . $row->legend_id . '" id="' . $row->id . '" value="0" name="prventveCntrl_' . $row->id . $count . '" >
                                                                                                                                             <span class="checkmark"></span>
                                                                                                                                         </label>';
-
-                    $remove_button = ($count > 1) ? '<a class="delete_child" id="'.$row->id .'" style="font-size:13px;position: absolute;margin-top: -4.1em;/* margin-right: -69.8em; */"><i class="fa fa-minus-circle"></i></a>' : '';
-                   $add_button = ($count > 1) ? '<a class="delete_child" data-id="'.$row->legend_id.'" id="' . $row->id . '" style="position: inherit;margin-left: 28px;"><i class="fa fa-plus-circle" aria-hidden="true"></i></a>' : '';
-                $add_button = ($count >=1) ? '<a data-id="'.$row->legend_id.'" class="add_child" id="' . $row->cra_proccessing_id . '" style="position: inherit;margin-left: 28px;"><i class="fa fa-plus-circle" aria-hidden="true"></i></a>' : '';
+                }
+                    $remove_button = ($count > 1) ? '<a class="delete_child" id="'.$row->id .'" style="font-size:13px;margin-top: -4.1em;/* margin-right: -69.8em; */"><i class="fa fa-minus-circle"></i></a>' : '';
+                   $add_button = ($count > 1) ? '<a class="delete_child" data-id="'.$row->legend_id.'" id="' . $row->id . '" style="margin-left: 28px;"><i class="fa fa-plus-circle" aria-hidden="true"></i></a>' : '';
+                $add_button = ($count >=1) ? '<a data-id="'.$row->legend_id.'" class="add_child" id="' . $row->cra_proccessing_id . '" style="top:28em;margin-left: 28px;"><i class="fa fa-plus-circle" aria-hidden="true"></i></a>' : '';
                     $output .= '
                 <tr>
                     <td rowspan="' . $count . '" >
+                    <a id="' . $row->p_step_id . '" class="p_step_remove" style="font-size:15px;margin-top: -3.6000000000000014em;/* margin-right: -69.8em; */">
+                    <i class="fa fa-minus-circle" aria-hidden="true"></i>
+                    </a>
                         <div style="padding:1em;" name="processing_step" contenteditable="true" id="' . $row->p_step_id . '">' . $row->processing_step . '</div>
-                         <a id="' . $row->p_step_id . '" class="p_step_remove" style="font-size:15px;position: absolute;margin-top: -3.6000000000000014em;/* margin-right: -69.8em; */">
-                         <i class="fa fa-minus-circle" aria-hidden="true"></i>
-                         </a>
+                        
                          
                     </td>
                    <td>
-                 
+                   ' . $remove_button . '
                     <div style="width:-4em; padding: 1em; text-align: center; position: relative;" contenteditable="true" id="' . $row->id . '" data-id="' . $row->legend_id . '" class="edit">' . $row->legend_name . '
               
                     </div>
-                     ' . $add_button . '  ' . $remove_button . '
+                     ' . $add_button . '  
                                 
                 </td>
                     <td >
@@ -901,6 +960,20 @@ class Forms extends CI_Controller
                 </tr>
             ';
             } else {
+                if($row->cra_is_applied == NULL){
+                    $cra_is_applied_true = ($row->cra_is_applied == 1) ? ' <label class="custom-radio">
+                    <input contenteditable="true" onblur="updateRadioValue(this)" data-column="cra_is_applied" data-id="' . $row->legend_id . '" id="' . $row->id . '" type="radio" value="1" name="cra_is_applied_' . $row->id . $count . '">
+                    <span class="checkmark"></span>
+                </label>' : ' <label class="custom-radio">
+                    <input contenteditable="true" onblur="updateRadioValue(this)" data-column="cra_is_applied" data-id="' . $row->legend_id . '" id="' . $row->id . '" type="radio" value="1" name="cra_is_applied_' . $row->id . $count . '">
+                    <span class="checkmark"></span>
+                </label>';
+                $cra_is_applied_false = ($row->cra_is_applied == 0) ? '<label class="custom-radio">
+                <input contenteditable="true" onblur="updateRadioValue(this)" data-column="cra_is_applied" data-id="' . $row->legend_id . '" type="radio" id="' . $row->id . '" value="0" name="cra_is_applied_' . $row->id . $count . '">
+                <span class="checkmark"></span>' : '<label class="custom-radio">
+                <input contenteditable="true" onblur="updateRadioValue(this)" data-column="cra_is_applied" data-id="' . $row->legend_id . '" type="radio" id="' . $row->id . '" value="0" name="cra_is_applied_' . $row->id . $count . '">
+                <span class="checkmark"></span>';
+                }else{
                 $cra_is_applied_true = ($row->cra_is_applied == 1) ? '<i class="fa fa-check-circle" style="font-size:20px;"></i>' : ' <label class="custom-radio">
                                                                                                                                             <input contenteditable="true" onblur="updateRadioValue(this)" data-column="cra_is_applied" data-id="' . $row->legend_id . '" id="' . $row->id . '" type="radio" value="1" name="cra_is_applied_' . $row->id . $count . '">
                                                                                                                                             <span class="checkmark"></span>
@@ -908,6 +981,23 @@ class Forms extends CI_Controller
                 $cra_is_applied_false = ($row->cra_is_applied == 0) ? '<i class="fa fa-check-circle" style="font-size:20px;"></i>' : '<label class="custom-radio">
                                                                                                                                         <input contenteditable="true" onblur="updateRadioValue(this)" data-column="cra_is_applied" data-id="' . $row->legend_id . '" type="radio" id="' . $row->id . '" value="0" name="cra_is_applied_' . $row->id . $count . '">
                                                                                                                                         <span class="checkmark"></span>';
+                }
+                if($row->cra_prvntv_ctrl== NULL){
+                    $cra_prvntv_ctrl_true = ($row->cra_prvntv_ctrl == 1) ? '<label class="custom-radio">
+                    <input contenteditable="true" onblur="updateRadioValue(this)" data-column="cra_prvntv_ctrl" data-id="' . $row->legend_id . '" id="' . $row->id . '" type="radio" value="1" name="prventveCntrl_' . $row->id . $count . '" >
+                    <span class="checkmark"></span>
+                    </label>' : ' <label class="custom-radio">
+                    <input contenteditable="true" onblur="updateRadioValue(this)" data-column="cra_prvntv_ctrl" data-id="' . $row->legend_id . '" id="' . $row->id . '" type="radio" value="1" name="prventveCntrl_' . $row->id . $count . '" >
+                    <span class="checkmark"></span>
+                    </label>';
+                $cra_prvntv_ctrl_false = ($row->cra_prvntv_ctrl == 0) ? '<label class="custom-radio">
+                <input contenteditable="true" onblur="updateRadioValue(this)" type="radio" data-column="cra_prvntv_ctrl" data-id="' . $row->legend_id . '" id="' . $row->id . '" value="0" name="prventveCntrl_' . $row->id . $count . '" >
+                <span class="checkmark"></span>
+            </label' : ' <label class="custom-radio">
+                        <input contenteditable="true" onblur="updateRadioValue(this)" type="radio" data-column="cra_prvntv_ctrl" data-id="' . $row->legend_id . '" id="' . $row->id . '" value="0" name="prventveCntrl_' . $row->id . $count . '" >
+                        <span class="checkmark"></span>
+                    </label>';
+                }else{
                 $cra_prvntv_ctrl_true = ($row->cra_prvntv_ctrl == 1) ? '<i class="fa fa-check-circle" style="font-size:20px;"></i>' : ' <label class="custom-radio">
                                                                                                                                         <input contenteditable="true" onblur="updateRadioValue(this)" data-column="cra_prvntv_ctrl" data-id="' . $row->legend_id . '" id="' . $row->id . '" type="radio" value="1" name="prventveCntrl_' . $row->id . $count . '" >
                                                                                                                                         <span class="checkmark"></span>
@@ -916,17 +1006,18 @@ class Forms extends CI_Controller
                                                                                                                                             <input contenteditable="true" onblur="updateRadioValue(this)" type="radio" data-column="cra_prvntv_ctrl" data-id="' . $row->legend_id . '" id="' . $row->id . '" value="0" name="prventveCntrl_' . $row->id . $count . '" >
                                                                                                                                             <span class="checkmark"></span>
                                                                                                                                         </label>';
+                }
                 $count = 2;
-                $add_button = ($count > 1) ? '<a class="add_child" data-id="'.$row->legend_id.'" id="' . $row->cra_proccessing_id . '" style="position: inherit;margin-left: 28px;"><i class="fa fa-plus-circle" aria-hidden="true"></i></a>' : '';
-                $remove_button = ($count > 1) ? '<a href="#" class="delete_child" id="' . $row->id . '" style="font-size:13px;position: absolute;margin-top: -4.1em;/* margin-right: -69.8em; */"><i class="fa fa-minus-circle"></i></a>' : '';
+                $add_button = ($count > 1) ? '<a class="add_child" data-id="'.$row->legend_id.'" id="' . $row->cra_proccessing_id . '" style="margin-left: 28px;"><i class="fa fa-plus-circle" aria-hidden="true"></i></a>' : '';
+                $remove_button = ($count > 1) ? '<a href="#" class="delete_child" id="' . $row->id . '" style="font-size:13px;margin-top: -4.1em;/* margin-right: -69.8em; */"><i class="fa fa-minus-circle"></i></a>' : '';
                 $output .= '
                 <tr>
                     <td>
-               
+                    ' . $remove_button . '
                          <div style="width:-4em; padding: 1em; text-align: center; position: relative;" contenteditable="true" id="' . $row->id . '" data-id="' . $row->legend_id . '" class="edit">' . $row->legend_name . '
                        
                     </div>
-                           ' . $add_button . '  ' . $remove_button . '
+                           ' . $add_button . ' 
                     </td>
                     <td >
                     
@@ -1054,7 +1145,7 @@ class Forms extends CI_Controller
 
                         $this->Quires->insert_cra_record($insert_record, $for_reviewer);
                         $this->session->set_flashdata('success_msg', 'Inserted Successfully!');
-                        redirect('forms/fwc_cra/list');
+                        redirect('forms/fwc_cra/cra');
                     } catch(\Exception $e) {
                         log_message('error', $e->getMessage());
                         redirect($this->agent->referrer());

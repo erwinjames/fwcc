@@ -8,7 +8,7 @@
     .signature-container {
         text-align: center;
         font-family: Arial, sans-serif;
-        font-size: 16px;
+        font-size: 12px;
         flex-basis: 50%;
         /* Set the width of each signature container to 50% */
     }
@@ -16,7 +16,7 @@
     .signature-container hr {
         border: none;
         border-top: 1px solid #000;
-        width:300px;
+        width:200px;
 
     }
 
@@ -211,7 +211,7 @@
 
                         // Make an AJAX request to the PDF generation endpoint
                         $.ajax({
-                            url: url + 'forms/pdf',
+                            url: url + 'forms/print_pdf_with_image',
                             method: 'POST',
                             data: {
                                 id: p_id
@@ -247,7 +247,7 @@
 
                         // Make an AJAX request to the PDF generation endpoint
                         $.ajax({
-                            url: url + 'forms/pdf',
+                            url: url + 'forms/print_pdf_with_image',
                             method: 'POST',
                             data: {
                                 id: p_id

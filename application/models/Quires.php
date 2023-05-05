@@ -227,8 +227,9 @@ error_reporting(E_ALL);
 		}
 
 		$this->insert_batch($reviewer, 'cra_reviewer_sign');
-			$this->db->update('fwc_cra', array('cra_prvntv_ctrl' => NULL, 'cra_is_applied' => NULL));
-		
+		$this->db->set('cra_prvntv_ctrl', NULL);
+		$this->db->set('cra_is_applied', NULL);
+		$this->db->update('fwc_cra');
 	}
 
 	public function fwc_cra_add_child($id, $justify, $record)
