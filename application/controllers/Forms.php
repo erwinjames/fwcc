@@ -53,9 +53,10 @@ class Forms extends CI_Controller
     }
     public function print_pdf_with_image()
     {
+
         $this->load->library('pdf');
         $this->load->helper('file');
-        $record_id = 3;
+        $record_id = $this->input->post('id');
         $data = $this->Quires->cra_show_record($record_id);
         $logo_image = file_get_contents('assets/images/logo.png');
         $logo_data_uri = 'data:image/png;base64,' . base64_encode($logo_image);
@@ -81,7 +82,6 @@ class Forms extends CI_Controller
           }
           
           td, th {
-            border: 1px solid  #949494;
             padding: 8px;
           }
         
@@ -126,20 +126,23 @@ class Forms extends CI_Controller
         .signature-container hr {
         border: none;
         border-top: 1px solid #000;
-        margin: 10px 0;
+        width:160px;
         }
 
         .signature-container .name {
         font-weight: bold;
+        font-size: 12px;
         margin-bottom: 5px;
         }
 
         .signature-container .position {
         margin-bottom: 5px;
+        font-size: 12px;
         }
 
         .signature-container .date {
         margin-top: 5px;
+        font-size: 12px;
         }    
         .datagrid tbody tr td.cash {
             text-align: right;
@@ -254,7 +257,30 @@ class Forms extends CI_Controller
             }
             $prev_processing_step = $row->id_report;
         }
-        $sign1_data_uri = $row->rev_sign;
+        $imageData = $row->rev_sign;
+        $imageData = str_replace('data:image/png;base64,', '', $imageData);
+        $imageData = str_replace(' ', '+', $imageData);
+        $imageBinary = base64_decode($imageData);
+        $file_path = FCPATH . 'assets/sign1.png';
+        write_file($file_path, $imageBinary);
+        $sign_image = file_get_contents(base_url('assets/sign1.png'));
+        $sign_data_uri = 'data:image/png;base64,' . base64_encode($sign_image);
+        // sign 2
+        $imageData2 = $row->appr_sign;
+        $imageData2 = str_replace('data:image/png;base64,', '', $imageData2);
+        $imageData2 = str_replace(' ', '+', $imageData2);
+        $imageBinary2 = base64_decode($imageData2);
+        $file_path2 = FCPATH . 'assets/sign2.png';
+        write_file($file_path2, $imageBinary2);
+        $sign_image2 = file_get_contents(base_url('assets/sign2.png'));
+        $sign_data_uri2 = 'data:image/png;base64,' . base64_encode($sign_image2);
+      
+        // reviewed date
+        $rev_date =  $row->rev_date;
+        $rev_formattedDate = date('M j, Y', strtotime($rev_date));
+        // approval date
+        $appr_date =  $row->appr_date;
+        $appr_formattedDate = date('M j, Y', strtotime($appr_date));
         // reviewed date
         $rev_date =  $row->rev_date;
         $rev_timestamp = strtotime($rev_date);
@@ -271,7 +297,7 @@ class Forms extends CI_Controller
                 <table class="signature-container-wrapper">
             <tr>
                 <td class="signature-container">
-                <image width="50%" src="' . $sign1_data_uri . '">
+               <h6>Reviewed By:<h6><br> <img width="40%" src="'.$sign_data_uri.'">
                 <hr>
                 <div class="name">' . $row->rev_name . '</div>
                 <div class="position">' . $row->rev_position . '</div>
@@ -279,7 +305,7 @@ class Forms extends CI_Controller
               
                 </td>
                 <td class="signature-container">
-                 <image src="' . $row->appr_sign . '">
+                <h6>Approved By:<h6><br> <img width="40%" src="'.$sign_data_uri2.'">
                 <hr>
                 <div class="name">' . $row->appr_name . '</div>
                 <div class="position">' . $row->appr_position . '</div>
@@ -295,182 +321,182 @@ class Forms extends CI_Controller
         $this->pdf->stream("pdf_with_image.pdf", array("Attachment" => false));
     }
 
-    public function pdf() {
-        $this->load->library('pdf');
-        $record_id = $this->input->post('id');
-        $data = $this->Quires->cra_show_record($record_id);
-        $html_content='';
-        $prev_processing_step = '';
-        $html_content .='
-        <style>
-        div.layout-978 { width: 978px; margin: 0px auto; }
+    // public function pdf() {
+    //     $this->load->library('pdf');
+    //     $record_id = $this->input->post('id');
+    //     $data = $this->Quires->cra_show_record($record_id);
+    //     $html_content='';
+    //     $prev_processing_step = '';
+    //     $html_content .='
+    //     <style>
+    //     div.layout-978 { width: 978px; margin: 0px auto; }
         
-        div.tblcontainer {
-            padding: 18px;
-            border: 1px solid #c0c0c0;
-            margin: 20px auto;
-            -moz-border-radius: 4px;
-            -webkit-border-radius: 4px;
-            border-radius: 4px; /* future proofing */
-            -khtml-border-radius: 4px; /* for old Konqueror browsers */
-            width: 93%;	
-        }
+    //     div.tblcontainer {
+    //         padding: 18px;
+    //         border: 1px solid #c0c0c0;
+    //         margin: 20px auto;
+    //         -moz-border-radius: 4px;
+    //         -webkit-border-radius: 4px;
+    //         border-radius: 4px; /* future proofing */
+    //         -khtml-border-radius: 4px; /* for old Konqueror browsers */
+    //         width: 93%;	
+    //     }
         
-        table {
-            border-collapse: collapse;
-          }
+    //     table {
+    //         border-collapse: collapse;
+    //       }
           
-          td, th {
-            border: 1px solid  #949494;
-            padding: 8px;
-          }
+    //       td, th {
+    //         border: 1px solid  #949494;
+    //         padding: 8px;
+    //       }
         
-        .datagrid {
-            border-collapse: collapse;
-        }
+    //     .datagrid {
+    //         border-collapse: collapse;
+    //     }
         
-        .datagrid thead tr th {
-            background: #8080801f;
-            color: #fffff;
-            font-size: 11px;
-            font-weight: normal;
-            text-align: left;
-            padding: 6px 8px;
-            border: 1px solid #c9c9c9;
-        }
-        .datagrid tbody tr {
-            background: #fff;
-        }
+    //     .datagrid thead tr th {
+    //         background: #8080801f;
+    //         color: #fffff;
+    //         font-size: 11px;
+    //         font-weight: normal;
+    //         text-align: left;
+    //         padding: 6px 8px;
+    //         border: 1px solid #c9c9c9;
+    //     }
+    //     .datagrid tbody tr {
+    //         background: #fff;
+    //     }
         
-        .datagrid tbody tr td {
-            font-size: 10px;
-            text-align:center;
-            padding: 6px 8px;
-            border: 1px solid #c9c9c9;
-        }
+    //     .datagrid tbody tr td {
+    //         font-size: 10px;
+    //         text-align:center;
+    //         padding: 6px 8px;
+    //         border: 1px solid #c9c9c9;
+    //     }
         
         
-        .datagrid tbody tr td.cash {
-            text-align: right;
-        }
-        </style>
-            <table class="datagrid"> 
-                <thead>
-                    <tr>
-                        <th rowspan="2">
-                            Processing Step
-                        </th>
-                        <th colspan="2">
-                            <p>Identify potential food safety hazards introduced, controlled, or enhanced at this step</p>
-                        </th>
-                        <th colspan="2">Do any potential food safety hazards require preventive control?</th>
-                        <th rowspan="2">Justify your decision for column 3</th>
-                        <th rowspan="2">
-                            <p style="text-align:center;">Whatpreventive control measure(s) can be applied to significantly minimize or prevent the food safety hazard?Process including CCPs, Allergen, Sanitation, Supply- chain, other preventive control</p>
-                        </th>
-                        <th colspan="2">Is the preventive control applied at this step?</th>
-                    </tr>
-                    <tr>
-                        <th></th>
-                        <th></th>
-                        <th>YES</th>
-                        <th>NO</th>
-                        <th>YES</th>
-                        <th>NO</th>
-                    </tr>
-                </thead>
-                <tbody >';
-                foreach ($data as $key => $row) {
-                    $cra_prvntv_ctrl_true = ($row->cra_prvntv_ctrl_record == 1) ? '<input type="checkbox" value="" checked="checked" />' : '-';
-                    $cra_prvntv_ctrl_false = ($row->cra_prvntv_ctrl_record == 0) ? '<input type="checkbox" value="" checked="checked" />' : '-';
-                    $cra_is_applied_true = ($row->cra_is_applied_record == 1) ? '<input type="checkbox" value="" checked="checked" />' : '-';
-                    $cra_is_applied_false = ($row->cra_is_applied_record == 0) ? '<input type="checkbox" value="" checked="checked" />' : '-';
+    //     .datagrid tbody tr td.cash {
+    //         text-align: right;
+    //     }
+    //     </style>
+    //         <table class="datagrid"> 
+    //             <thead>
+    //                 <tr>
+    //                     <th rowspan="2">
+    //                         Processing Step
+    //                     </th>
+    //                     <th colspan="2">
+    //                         <p>Identify potential food safety hazards introduced, controlled, or enhanced at this step</p>
+    //                     </th>
+    //                     <th colspan="2">Do any potential food safety hazards require preventive control?</th>
+    //                     <th rowspan="2">Justify your decision for column 3</th>
+    //                     <th rowspan="2">
+    //                         <p style="text-align:center;">Whatpreventive control measure(s) can be applied to significantly minimize or prevent the food safety hazard?Process including CCPs, Allergen, Sanitation, Supply- chain, other preventive control</p>
+    //                     </th>
+    //                     <th colspan="2">Is the preventive control applied at this step?</th>
+    //                 </tr>
+    //                 <tr>
+    //                     <th></th>
+    //                     <th></th>
+    //                     <th>YES</th>
+    //                     <th>NO</th>
+    //                     <th>YES</th>
+    //                     <th>NO</th>
+    //                 </tr>
+    //             </thead>
+    //             <tbody >';
+    //             foreach ($data as $key => $row) {
+    //                 $cra_prvntv_ctrl_true = ($row->cra_prvntv_ctrl_record == 1) ? '<input type="checkbox" value="" checked="checked" />' : '-';
+    //                 $cra_prvntv_ctrl_false = ($row->cra_prvntv_ctrl_record == 0) ? '<input type="checkbox" value="" checked="checked" />' : '-';
+    //                 $cra_is_applied_true = ($row->cra_is_applied_record == 1) ? '<input type="checkbox" value="" checked="checked" />' : '-';
+    //                 $cra_is_applied_false = ($row->cra_is_applied_record == 0) ? '<input type="checkbox" value="" checked="checked" />' : '-';
                     
-                    if ($prev_processing_step != $row->id_report) {
-                        $count = count(array_filter($data, function ($d) use ($row) {
-                            return $d->id_report == $row->id_report;
-                        }));
-                        $html_content .= '
-                        <tr>
-                            <td rowspan="' . $count . '" >
-                            '.$row->processing_step. '
+    //                 if ($prev_processing_step != $row->id_report) {
+    //                     $count = count(array_filter($data, function ($d) use ($row) {
+    //                         return $d->id_report == $row->id_report;
+    //                     }));
+    //                     $html_content .= '
+    //                     <tr>
+    //                         <td rowspan="' . $count . '" >
+    //                         '.$row->processing_step. '
                                  
-                            </td>
-                           <td>
-                            ' . $row->legend_name . '    
-                            </td>
-                            <td>
-                                 ' . $row->legend_desc . '
+    //                         </td>
+    //                        <td>
+    //                         ' . $row->legend_name . '    
+    //                         </td>
+    //                         <td>
+    //                              ' . $row->legend_desc . '
                             
-                            </td>
-                            <td>
-                           ' .$cra_prvntv_ctrl_true. '
-                            </td>
-                            <td>
-                               ' . $cra_prvntv_ctrl_false . '
-                            </td>
-                            <td>
-                                  ' . $row->cra_jstify_record . '
+    //                         </td>
+    //                         <td>
+    //                        ' .$cra_prvntv_ctrl_true. '
+    //                         </td>
+    //                         <td>
+    //                            ' . $cra_prvntv_ctrl_false . '
+    //                         </td>
+    //                         <td>
+    //                               ' . $row->cra_jstify_record . '
                              
-                            </td>
-                            <td>
-                                 ' . $row->cra_food_safety_hazard_record . '
+    //                         </td>
+    //                         <td>
+    //                              ' . $row->cra_food_safety_hazard_record . '
                              
-                            </td>
-                             <td>
-                             ' .  $cra_is_applied_true  . '
-                            </td>
-                             <td>
-                             ' . $cra_is_applied_false.'
-                            </td>
-                        </tr> ';
-                    }else{
-                        $html_content .= '
-                        <tr>
-                            <td>
-                                    ' . $row->legend_name . ' 
+    //                         </td>
+    //                          <td>
+    //                          ' .  $cra_is_applied_true  . '
+    //                         </td>
+    //                          <td>
+    //                          ' . $cra_is_applied_false.'
+    //                         </td>
+    //                     </tr> ';
+    //                 }else{
+    //                     $html_content .= '
+    //                     <tr>
+    //                         <td>
+    //                                 ' . $row->legend_name . ' 
                            
-                            </td>
-                            <td >
+    //                         </td>
+    //                         <td >
                             
-                                  ' . $row->legend_desc . '
+    //                               ' . $row->legend_desc . '
                                  
-                            </td>
-                             <td>
-                             ' .$cra_prvntv_ctrl_true. '
-                            </td>
-                            <td>
-                            ' . $cra_prvntv_ctrl_false . '
-                            </td>
-                            <td>
-                                  ' . $row->cra_jstify_record . '
+    //                         </td>
+    //                          <td>
+    //                          ' .$cra_prvntv_ctrl_true. '
+    //                         </td>
+    //                         <td>
+    //                         ' . $cra_prvntv_ctrl_false . '
+    //                         </td>
+    //                         <td>
+    //                               ' . $row->cra_jstify_record . '
                                  
-                            </td>
-                            <td>
-                                  ' . $row->cra_food_safety_hazard_record . '
+    //                         </td>
+    //                         <td>
+    //                               ' . $row->cra_food_safety_hazard_record . '
                                   
                               
-                            </td>
-                            <td>
-                           ' .  $cra_is_applied_true  . '
-                            </td>
-                            <td>
-                          ' . $cra_is_applied_false. '
+    //                         </td>
+    //                         <td>
+    //                        ' .  $cra_is_applied_true  . '
+    //                         </td>
+    //                         <td>
+    //                       ' . $cra_is_applied_false. '
                          
-                            </td>
-                        </tr> ';
-                    }
-            $prev_processing_step= $row->id_report;
-                } 
-                $html_content.='
-                </tbody>
-                </table>
-            </div>';
-                $this->pdf->setPaper('A4', 'landscape');
-                $this->pdf->loadHtml($html_content);
-                $this->pdf->render();
-                $this->pdf->stream("sample.pdf", array("Attachment"=>0));
-    }
+    //                         </td>
+    //                     </tr> ';
+    //                 }
+    //         $prev_processing_step= $row->id_report;
+    //             } 
+    //             $html_content.='
+    //             </tbody>
+    //             </table>
+    //         </div>';
+    //             $this->pdf->setPaper('A4', 'landscape');
+    //             $this->pdf->loadHtml($html_content);
+    //             $this->pdf->render();
+    //             $this->pdf->stream("sample.pdf", array("Attachment"=>0));
+    // }
     
     public function cra_show_table_record()
     {

@@ -211,7 +211,7 @@
 
                         // Make an AJAX request to the PDF generation endpoint
                         $.ajax({
-                            url: url + 'forms/pdf',
+                            url: url + 'forms/print_pdf_with_image',
                             method: 'POST',
                             data: {
                                 id: p_id
@@ -247,7 +247,7 @@
 
                         // Make an AJAX request to the PDF generation endpoint
                         $.ajax({
-                            url: url + 'forms/pdf',
+                            url: url + 'forms/print_pdf_with_image',
                             method: 'POST',
                             data: {
                                 id: p_id
