@@ -828,9 +828,9 @@ class Forms extends CI_Controller
         <div class="row">
             <div class="col-xs-12">
 
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table-responsive table table-bordered table-hover" id="mytable">
+                <div class="card-body" >
+                    <div class="table-responsive" style="height: 600px; ">
+                        <table class="table-responsive table table-bordered table-hover" id="mytable"  style="overflow-y:scroll;">
                             <thead class="bg-gray-200">
                                 <tr>
                                     <th rowspan="2" class="px-4 py-2 text-center">
@@ -910,24 +910,25 @@ class Forms extends CI_Controller
                                                                                                                                             <span class="checkmark"></span>
                                                                                                                                         </label>';
                 }
-                    $remove_button = ($count > 1) ? '<a class="delete_child" id="'.$row->id .'" style="font-size:13px;position: absolute;margin-top: -4.1em;/* margin-right: -69.8em; */"><i class="fa fa-minus-circle"></i></a>' : '';
-                   $add_button = ($count > 1) ? '<a class="delete_child" data-id="'.$row->legend_id.'" id="' . $row->id . '" style="position: inherit;margin-left: 28px;"><i class="fa fa-plus-circle" aria-hidden="true"></i></a>' : '';
-                $add_button = ($count >=1) ? '<a data-id="'.$row->legend_id.'" class="add_child" id="' . $row->cra_proccessing_id . '" style="position: inherit;margin-left: 28px;"><i class="fa fa-plus-circle" aria-hidden="true"></i></a>' : '';
+                    $remove_button = ($count > 1) ? '<a class="delete_child" id="'.$row->id .'" style="font-size:13px;margin-top: -4.1em;/* margin-right: -69.8em; */"><i class="fa fa-minus-circle"></i></a>' : '';
+                   $add_button = ($count > 1) ? '<a class="delete_child" data-id="'.$row->legend_id.'" id="' . $row->id . '" style="margin-left: 28px;"><i class="fa fa-plus-circle" aria-hidden="true"></i></a>' : '';
+                $add_button = ($count >=1) ? '<a data-id="'.$row->legend_id.'" class="add_child" id="' . $row->cra_proccessing_id . '" style="top:28em;margin-left: 28px;"><i class="fa fa-plus-circle" aria-hidden="true"></i></a>' : '';
                     $output .= '
                 <tr>
                     <td rowspan="' . $count . '" >
+                    <a id="' . $row->p_step_id . '" class="p_step_remove" style="font-size:15px;margin-top: -3.6000000000000014em;/* margin-right: -69.8em; */">
+                    <i class="fa fa-minus-circle" aria-hidden="true"></i>
+                    </a>
                         <div style="padding:1em;" name="processing_step" contenteditable="true" id="' . $row->p_step_id . '">' . $row->processing_step . '</div>
-                         <a id="' . $row->p_step_id . '" class="p_step_remove" style="font-size:15px;position: absolute;margin-top: -3.6000000000000014em;/* margin-right: -69.8em; */">
-                         <i class="fa fa-minus-circle" aria-hidden="true"></i>
-                         </a>
+                        
                          
                     </td>
                    <td>
-                 
+                   ' . $remove_button . '
                     <div style="width:-4em; padding: 1em; text-align: center; position: relative;" contenteditable="true" id="' . $row->id . '" data-id="' . $row->legend_id . '" class="edit">' . $row->legend_name . '
               
                     </div>
-                     ' . $add_button . '  ' . $remove_button . '
+                     ' . $add_button . '  
                                 
                 </td>
                     <td >
@@ -1007,16 +1008,16 @@ class Forms extends CI_Controller
                                                                                                                                         </label>';
                 }
                 $count = 2;
-                $add_button = ($count > 1) ? '<a class="add_child" data-id="'.$row->legend_id.'" id="' . $row->cra_proccessing_id . '" style="position: inherit;margin-left: 28px;"><i class="fa fa-plus-circle" aria-hidden="true"></i></a>' : '';
-                $remove_button = ($count > 1) ? '<a href="#" class="delete_child" id="' . $row->id . '" style="font-size:13px;position: absolute;margin-top: -4.1em;/* margin-right: -69.8em; */"><i class="fa fa-minus-circle"></i></a>' : '';
+                $add_button = ($count > 1) ? '<a class="add_child" data-id="'.$row->legend_id.'" id="' . $row->cra_proccessing_id . '" style="margin-left: 28px;"><i class="fa fa-plus-circle" aria-hidden="true"></i></a>' : '';
+                $remove_button = ($count > 1) ? '<a href="#" class="delete_child" id="' . $row->id . '" style="font-size:13px;margin-top: -4.1em;/* margin-right: -69.8em; */"><i class="fa fa-minus-circle"></i></a>' : '';
                 $output .= '
                 <tr>
                     <td>
-               
+                    ' . $remove_button . '
                          <div style="width:-4em; padding: 1em; text-align: center; position: relative;" contenteditable="true" id="' . $row->id . '" data-id="' . $row->legend_id . '" class="edit">' . $row->legend_name . '
                        
                     </div>
-                           ' . $add_button . '  ' . $remove_button . '
+                           ' . $add_button . ' 
                     </td>
                     <td >
                     
