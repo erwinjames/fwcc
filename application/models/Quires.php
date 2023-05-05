@@ -107,6 +107,7 @@ error_reporting(E_ALL);
 		$this->db->join('cra_proccesing_step cps', 'FIND_IN_SET(cps.p_step_id, cr.id_report) > 0');
 		$this->db->join('cra_legend cl', 'FIND_IN_SET(cl.legend_id, cr.cra_legend_id) > 0');
 		$this->db->where('cr.table_id', $record_id);
+		$this->db->order_by('cr.record_id');
 		$query = $this->db->get();
 		$result = $query->result();
 		return $result; // Add this line to return the result

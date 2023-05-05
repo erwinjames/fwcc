@@ -82,7 +82,7 @@ class Forms extends CI_Controller
           }
           
           td, th {
-            padding: 8px;
+            padding: 89px;
           }
         
         .datagrid {
@@ -92,7 +92,7 @@ class Forms extends CI_Controller
         .datagrid thead tr th {
             background: #8080801f;
             color: #fffff;
-            font-size: 11px;
+            font-size: 12px;
             font-weight: normal;
             text-align: left;
             padding: 6px 8px;
@@ -103,11 +103,12 @@ class Forms extends CI_Controller
         }
         
         .datagrid tbody tr td {
-            font-size: 10px;
+            font-size: 12px;
             text-align:center;
-            padding: 6px 8px;
+            padding: 7px 9px;
             border: 1px solid #c9c9c9;
         }
+
        .signature-container-wrapper {
             width: 100%;
             max-width: 800px; /* set a maximum width for the table */
@@ -149,8 +150,17 @@ class Forms extends CI_Controller
         }
         </style>
             <table class="datagrid"> 
-            <center><img width="70%" src="'.$logo_data_uri.'"></center>
                 <thead>
+                 <tr>
+                   <th  colspan="9" style="text-align:center;">
+                    <img width="20%" src="' . $logo_data_uri . '">
+                    </th>
+                 </tr>
+                  <tr>
+                   <th  colspan="9" style="text-align:center;">
+                      <h4>Hazard Analysis</h4>
+                    </th>
+                 </tr>
                     <tr>
                         <th rowspan="2">
                             Processing Step
@@ -292,7 +302,6 @@ class Forms extends CI_Controller
         $html_content .= '
                 </tbody>
                 </table>
-                <br>
                 <table class="signature-container-wrapper">
             <tr>
                 <td class="signature-container">
@@ -313,6 +322,8 @@ class Forms extends CI_Controller
             </tr>
             </table>
             </div>';
+
+        $this->pdf->setPaper('A4', 'portrait');
         $this->pdf->load_html($html_content);
         $this->pdf->render();
 
