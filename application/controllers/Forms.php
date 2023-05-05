@@ -863,6 +863,20 @@ class Forms extends CI_Controller
                 $count = count(array_filter($data, function ($d) use ($row) {
                     return $d->cra_proccessing_id == $row->cra_proccessing_id;
                 }));
+                if($row->cra_is_applied == NULL){
+                    $cra_is_applied_true = ($row->cra_is_applied == 1) ? ' <label class="custom-radio">
+                    <input contenteditable="true" onblur="updateRadioValue(this)" data-column="cra_is_applied" data-id="' . $row->legend_id . '" id="' . $row->id . '" type="radio" value="1" name="cra_is_applied_' . $row->id . $count . '">
+                    <span class="checkmark"></span>
+                </label>' : ' <label class="custom-radio">
+                    <input contenteditable="true" onblur="updateRadioValue(this)" data-column="cra_is_applied" data-id="' . $row->legend_id . '" id="' . $row->id . '" type="radio" value="1" name="cra_is_applied_' . $row->id . $count . '">
+                    <span class="checkmark"></span>
+                </label>';
+                $cra_is_applied_false = ($row->cra_is_applied == 0) ? '<label class="custom-radio">
+                <input contenteditable="true" onblur="updateRadioValue(this)" data-column="cra_is_applied" data-id="' . $row->legend_id . '" type="radio" id="' . $row->id . '" value="0" name="cra_is_applied_' . $row->id . $count . '">
+                <span class="checkmark"></span>' : '<label class="custom-radio">
+                <input contenteditable="true" onblur="updateRadioValue(this)" data-column="cra_is_applied" data-id="' . $row->legend_id . '" type="radio" id="' . $row->id . '" value="0" name="cra_is_applied_' . $row->id . $count . '">
+                <span class="checkmark"></span>';
+                }else{
                 $cra_is_applied_true = ($row->cra_is_applied == 1) ? '<i class="fa fa-check-circle" style="font-size:20px;"></i>' : ' <label class="custom-radio">
                                                                                                                                             <input contenteditable="true" onblur="updateRadioValue(this)" data-column="cra_is_applied" data-id="' . $row->legend_id . '" id="' . $row->id . '" type="radio" value="1" name="cra_is_applied_' . $row->id . $count . '">
                                                                                                                                             <span class="checkmark"></span>
@@ -870,6 +884,23 @@ class Forms extends CI_Controller
                 $cra_is_applied_false = ($row->cra_is_applied == 0) ? '<i class="fa fa-check-circle" style="font-size:20px;"></i>' : '<label class="custom-radio">
                                                                                                                                         <input contenteditable="true" onblur="updateRadioValue(this)" data-column="cra_is_applied" data-id="' . $row->legend_id . '" type="radio" id="' . $row->id . '" value="0" name="cra_is_applied_' . $row->id . $count . '">
                                                                                                                                         <span class="checkmark"></span>';
+                }
+                if($row->cra_prvntv_ctrl== NULL){
+                    $cra_prvntv_ctrl_true = ($row->cra_prvntv_ctrl == 1) ? '<label class="custom-radio">
+                    <input contenteditable="true" onblur="updateRadioValue(this)" data-column="cra_prvntv_ctrl" data-id="' . $row->legend_id . '" id="' . $row->id . '" type="radio" value="1" name="prventveCntrl_' . $row->id . $count . '" >
+                    <span class="checkmark"></span>
+                    </label>' : ' <label class="custom-radio">
+                    <input contenteditable="true" onblur="updateRadioValue(this)" data-column="cra_prvntv_ctrl" data-id="' . $row->legend_id . '" id="' . $row->id . '" type="radio" value="1" name="prventveCntrl_' . $row->id . $count . '" >
+                    <span class="checkmark"></span>
+                    </label>';
+                $cra_prvntv_ctrl_false = ($row->cra_prvntv_ctrl == 0) ? '<label class="custom-radio">
+                <input contenteditable="true" onblur="updateRadioValue(this)" type="radio" data-column="cra_prvntv_ctrl" data-id="' . $row->legend_id . '" id="' . $row->id . '" value="0" name="prventveCntrl_' . $row->id . $count . '" >
+                <span class="checkmark"></span>
+            </label' : ' <label class="custom-radio">
+                        <input contenteditable="true" onblur="updateRadioValue(this)" type="radio" data-column="cra_prvntv_ctrl" data-id="' . $row->legend_id . '" id="' . $row->id . '" value="0" name="prventveCntrl_' . $row->id . $count . '" >
+                        <span class="checkmark"></span>
+                    </label>';
+                }else{
                 $cra_prvntv_ctrl_true = ($row->cra_prvntv_ctrl == 1) ? '<i class="fa fa-check-circle" style="font-size:20px;"></i>' : ' <label class="custom-radio">
                                                                                                                                         <input contenteditable="true" onblur="updateRadioValue(this)" data-column="cra_prvntv_ctrl" data-id="' . $row->legend_id . '" id="' . $row->id . '" type="radio" value="1" name="prventveCntrl_' . $row->id . $count . '" >
                                                                                                                                         <span class="checkmark"></span>
@@ -878,7 +909,7 @@ class Forms extends CI_Controller
                                                                                                                                             <input contenteditable="true" onblur="updateRadioValue(this)" type="radio" data-column="cra_prvntv_ctrl" data-id="' . $row->legend_id . '" id="' . $row->id . '" value="0" name="prventveCntrl_' . $row->id . $count . '" >
                                                                                                                                             <span class="checkmark"></span>
                                                                                                                                         </label>';
-
+                }
                     $remove_button = ($count > 1) ? '<a class="delete_child" id="'.$row->id .'" style="font-size:13px;position: absolute;margin-top: -4.1em;/* margin-right: -69.8em; */"><i class="fa fa-minus-circle"></i></a>' : '';
                    $add_button = ($count > 1) ? '<a class="delete_child" data-id="'.$row->legend_id.'" id="' . $row->id . '" style="position: inherit;margin-left: 28px;"><i class="fa fa-plus-circle" aria-hidden="true"></i></a>' : '';
                 $add_button = ($count >=1) ? '<a data-id="'.$row->legend_id.'" class="add_child" id="' . $row->cra_proccessing_id . '" style="position: inherit;margin-left: 28px;"><i class="fa fa-plus-circle" aria-hidden="true"></i></a>' : '';
@@ -928,6 +959,20 @@ class Forms extends CI_Controller
                 </tr>
             ';
             } else {
+                if($row->cra_is_applied == NULL){
+                    $cra_is_applied_true = ($row->cra_is_applied == 1) ? ' <label class="custom-radio">
+                    <input contenteditable="true" onblur="updateRadioValue(this)" data-column="cra_is_applied" data-id="' . $row->legend_id . '" id="' . $row->id . '" type="radio" value="1" name="cra_is_applied_' . $row->id . $count . '">
+                    <span class="checkmark"></span>
+                </label>' : ' <label class="custom-radio">
+                    <input contenteditable="true" onblur="updateRadioValue(this)" data-column="cra_is_applied" data-id="' . $row->legend_id . '" id="' . $row->id . '" type="radio" value="1" name="cra_is_applied_' . $row->id . $count . '">
+                    <span class="checkmark"></span>
+                </label>';
+                $cra_is_applied_false = ($row->cra_is_applied == 0) ? '<label class="custom-radio">
+                <input contenteditable="true" onblur="updateRadioValue(this)" data-column="cra_is_applied" data-id="' . $row->legend_id . '" type="radio" id="' . $row->id . '" value="0" name="cra_is_applied_' . $row->id . $count . '">
+                <span class="checkmark"></span>' : '<label class="custom-radio">
+                <input contenteditable="true" onblur="updateRadioValue(this)" data-column="cra_is_applied" data-id="' . $row->legend_id . '" type="radio" id="' . $row->id . '" value="0" name="cra_is_applied_' . $row->id . $count . '">
+                <span class="checkmark"></span>';
+                }else{
                 $cra_is_applied_true = ($row->cra_is_applied == 1) ? '<i class="fa fa-check-circle" style="font-size:20px;"></i>' : ' <label class="custom-radio">
                                                                                                                                             <input contenteditable="true" onblur="updateRadioValue(this)" data-column="cra_is_applied" data-id="' . $row->legend_id . '" id="' . $row->id . '" type="radio" value="1" name="cra_is_applied_' . $row->id . $count . '">
                                                                                                                                             <span class="checkmark"></span>
@@ -935,6 +980,23 @@ class Forms extends CI_Controller
                 $cra_is_applied_false = ($row->cra_is_applied == 0) ? '<i class="fa fa-check-circle" style="font-size:20px;"></i>' : '<label class="custom-radio">
                                                                                                                                         <input contenteditable="true" onblur="updateRadioValue(this)" data-column="cra_is_applied" data-id="' . $row->legend_id . '" type="radio" id="' . $row->id . '" value="0" name="cra_is_applied_' . $row->id . $count . '">
                                                                                                                                         <span class="checkmark"></span>';
+                }
+                if($row->cra_prvntv_ctrl== NULL){
+                    $cra_prvntv_ctrl_true = ($row->cra_prvntv_ctrl == 1) ? '<label class="custom-radio">
+                    <input contenteditable="true" onblur="updateRadioValue(this)" data-column="cra_prvntv_ctrl" data-id="' . $row->legend_id . '" id="' . $row->id . '" type="radio" value="1" name="prventveCntrl_' . $row->id . $count . '" >
+                    <span class="checkmark"></span>
+                    </label>' : ' <label class="custom-radio">
+                    <input contenteditable="true" onblur="updateRadioValue(this)" data-column="cra_prvntv_ctrl" data-id="' . $row->legend_id . '" id="' . $row->id . '" type="radio" value="1" name="prventveCntrl_' . $row->id . $count . '" >
+                    <span class="checkmark"></span>
+                    </label>';
+                $cra_prvntv_ctrl_false = ($row->cra_prvntv_ctrl == 0) ? '<label class="custom-radio">
+                <input contenteditable="true" onblur="updateRadioValue(this)" type="radio" data-column="cra_prvntv_ctrl" data-id="' . $row->legend_id . '" id="' . $row->id . '" value="0" name="prventveCntrl_' . $row->id . $count . '" >
+                <span class="checkmark"></span>
+            </label' : ' <label class="custom-radio">
+                        <input contenteditable="true" onblur="updateRadioValue(this)" type="radio" data-column="cra_prvntv_ctrl" data-id="' . $row->legend_id . '" id="' . $row->id . '" value="0" name="prventveCntrl_' . $row->id . $count . '" >
+                        <span class="checkmark"></span>
+                    </label>';
+                }else{
                 $cra_prvntv_ctrl_true = ($row->cra_prvntv_ctrl == 1) ? '<i class="fa fa-check-circle" style="font-size:20px;"></i>' : ' <label class="custom-radio">
                                                                                                                                         <input contenteditable="true" onblur="updateRadioValue(this)" data-column="cra_prvntv_ctrl" data-id="' . $row->legend_id . '" id="' . $row->id . '" type="radio" value="1" name="prventveCntrl_' . $row->id . $count . '" >
                                                                                                                                         <span class="checkmark"></span>
@@ -943,6 +1005,7 @@ class Forms extends CI_Controller
                                                                                                                                             <input contenteditable="true" onblur="updateRadioValue(this)" type="radio" data-column="cra_prvntv_ctrl" data-id="' . $row->legend_id . '" id="' . $row->id . '" value="0" name="prventveCntrl_' . $row->id . $count . '" >
                                                                                                                                             <span class="checkmark"></span>
                                                                                                                                         </label>';
+                }
                 $count = 2;
                 $add_button = ($count > 1) ? '<a class="add_child" data-id="'.$row->legend_id.'" id="' . $row->cra_proccessing_id . '" style="position: inherit;margin-left: 28px;"><i class="fa fa-plus-circle" aria-hidden="true"></i></a>' : '';
                 $remove_button = ($count > 1) ? '<a href="#" class="delete_child" id="' . $row->id . '" style="font-size:13px;position: absolute;margin-top: -4.1em;/* margin-right: -69.8em; */"><i class="fa fa-minus-circle"></i></a>' : '';
@@ -1081,7 +1144,7 @@ class Forms extends CI_Controller
 
                         $this->Quires->insert_cra_record($insert_record, $for_reviewer);
                         $this->session->set_flashdata('success_msg', 'Inserted Successfully!');
-                        redirect('forms/fwc_cra/list');
+                        redirect('forms/fwc_cra/cra');
                     } catch(\Exception $e) {
                         log_message('error', $e->getMessage());
                         redirect($this->agent->referrer());
